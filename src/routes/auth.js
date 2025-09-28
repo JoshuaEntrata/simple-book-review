@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const { signToken } = require("../utils/jwt");
-const authMiddleware = require("../middleware/auth");
+const { authenticateJWT } = require("../middleware/auth");
 
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
@@ -59,7 +59,7 @@ router.post("/login", async (req, res) => {
     token,
   });
 
-  router.get("/me", authMiddleware.authenticateJWT, (req, res) => {
+  router.get("/me", authenticateJWT, (req, res) => {
     res.json({ user: req.user });
   });
 });
