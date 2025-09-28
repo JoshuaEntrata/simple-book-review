@@ -9,7 +9,7 @@ router.get("/", (req, res) => {
     .prepare(
       `
         SELECT b.*,
-            COALESCE(AVG(r.rating), 0) AS avg_rating.
+            COALESCE(AVG(r.rating), 0) AS avg_rating,
             COUNT(r.id) as review_count
         FROM books b
         LEFT JOIN reviews r ON r.book_id = b.id
@@ -28,8 +28,10 @@ router.post("/", authenticateJWT, authorizeRoles("admin"), (req, res) => {
     });
   }
 
-  const info = db.prepare("INSERT INTO books (title, author) VALUES (?, ?)");
-  cache.del("top__books");
+  const info = db
+    .prepare("INSERT INTO books (title, author) VALUES (?, ?)")
+    .run(title, author);
+  cache.del("top_books");
   res.json({
     id: info.lastInsertRowid,
     title,

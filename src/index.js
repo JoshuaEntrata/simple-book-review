@@ -4,10 +4,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 
-require("db");
-
 const authRoutes = require("./routes/auth");
-const bookRoutes = require("/routes/books");
+const bookRoutes = require("./routes/books");
 const reviewsRoutes = require("./routes/reviews");
 
 const app = express();

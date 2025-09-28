@@ -18,6 +18,15 @@ router.post("/register", async (req, res) => {
     const info = db
       .prepare(`INSERT INTO users (username, password) VALUES (?, ?)`)
       .run(username, hash);
+
+    const user = {
+      id: info.lastInsertRowid,
+      role: "user",
+      username,
+    };
+    const token = signToken(user);
+    console.log("token", token, " user", user);
+    res.json({ user, token });
   } catch (err) {
     if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
       return res.status(400).json({

@@ -1,15 +1,15 @@
 const { verifyToken } = require("../utils/jwt");
 
 function authenticateJWT(req, res, next) {
-  const authHeader = req.header.authorizataion;
+  const authHeader = req.headers["authorization"];
   if (!authHeader) {
     return res.status(401).json({
-      message: "Missing Authorizaation header",
+      message: "Missing Authorization header",
     });
   }
 
   const parts = authHeader.split(" ");
-  if (parts.length !== 2) {
+  if (parts.length !== 2 || parts[0] !== "Bearer") {
     return res.status(401).json({
       message: "Invalid Authorization header",
     });
