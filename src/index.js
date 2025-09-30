@@ -8,6 +8,8 @@ const authRoutes = require("./routes/auth");
 const bookRoutes = require("./routes/books");
 const reviewsRoutes = require("./routes/reviews");
 
+const initDB = require("./db/init");
+
 const app = express();
 app.use(helmet());
 app.use(morgan("dev"));
@@ -26,6 +28,7 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT;
-app.listen(PORT, () =>
-  console.log(`Server running on http://localhost:${PORT}`)
-);
+app.listen(PORT, async () => {
+  await initDB();
+  console.log(`Server running on http://localhost:${PORT}`);
+});
