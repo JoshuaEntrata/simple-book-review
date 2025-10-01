@@ -8,10 +8,6 @@ const Book = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    text: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     author: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -19,6 +15,7 @@ const Book = sequelize.define(
   },
   {
     sequelize,
+    tableName: "Books",
     timestamps: true,
     createdAt: "created_at",
     updatedAt: false,

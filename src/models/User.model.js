@@ -21,6 +21,7 @@ const User = sequelize.define(
   },
   {
     sequelize,
+    tableName: "Users",
     timestamps: true,
     createdAt: "created_at",
     updatedAt: false,
