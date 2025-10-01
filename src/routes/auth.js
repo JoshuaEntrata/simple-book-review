@@ -4,73 +4,52 @@ const db = require("../db");
 const bcrypt = require("bcrypt");
 const { signToken } = require("../utils/jwt");
 const { authenticateJWT } = require("../middleware/auth");
+const AuthService = require("../services/Auth.service");
 
 router.post("/register", async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({
-      message: `Username and password required`,
-    });
-  }
-
   try {
-    const hash = await bcrypt.hash(password, 10);
-    const info = db
-      .prepare(`INSERT INTO users (username, password) VALUES (?, ?)`)
-      .run(username, hash);
-
-    const user = {
-      id: info.lastInsertRowid,
-      role: "user",
-      username,
-    };
-    const token = signToken(user);
-    console.log("token", token, " user", user);
-    res.json({ user, token });
-  } catch (err) {
-    if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
+    const { username, password } = req.body;
+    if (!username || !password) {
       return res.status(400).json({
-        message: "Username already exits",
+        message: `Username and password required`,
       });
     }
 
+    const { user, token } = await AuthService.register(username, password);
+
+    res.json({
+      username: user.username,
+      role: user.role,
+      token,
+    });
+  } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({
+        message: `Username and password required`,
+      });
+    }
 
-  const row = db
-    .prepare(
-      `SELECT id, username, password, role FROM users WHERE username = ?`
-    )
-    .get(username);
-  if (!row) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
+    const { user, token } = await AuthService.login(username, password);
 
-  const match = await bcrypt.compare(password, row.password);
-  if (!match)
-    return res.status(400).json({
-      message: "Invalid credentials",
+    res.json({
+      username: user.username,
+      role: user.role,
+      token,
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-  const user = {
-    id: row.id,
-    username: row.username,
-    role: row.role,
-  };
-  const token = signToken(user);
-
-  res.json({
-    user,
-    token,
-  });
-
-  router.get("/me", authenticateJWT, (req, res) => {
-    res.json({ user: req.user });
-  });
+router.get("/me", authenticateJWT, (req, res) => {
+  res.json({ user: req.user });
 });
 
 module.exports = router;
